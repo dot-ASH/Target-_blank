@@ -15,14 +15,14 @@
 ### Homepage
 ---
 
-![[home.gif]]
+![home](/Assets/home.gif)
 
 ### Profile & Dashboard
 ---
 
-![[profile_dashboard.gif]]
+![profile_dashboard](/Assets/profile_dashboard.gif)
 
 ### Post & Comment
 ---
 
-![[post_comment.gif]]
+![post_comment](/Assets/post_comment.gif)
