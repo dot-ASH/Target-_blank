@@ -48,7 +48,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    console.log("heii", import.meta.env.VITE_API);
+    console.log("heii", import.meta.env.VITE_USER);
     fetchPost();
     fetchCat();
     fetchUser();
