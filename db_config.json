@@ -1,0 +1,8 @@
+{
+  "user": "react_blog_eg6y_user",
+  "password": "W6DuyTkbEZOk6VlcLyUGEm49UP8TPuIM",
+  "host": "dpg-cm4lu37qd2ns73el05dg-a.singapore-postgres.render.com",
+  "database": "react_blog_eg6y",
+  "port": 5432,
+  "ssl": true
+}

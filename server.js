@@ -1,13 +1,12 @@
 import express from "express";
 const app = express();
-const port = 3001;
+const port = 3000;
 import cors from "cors";
 import { pool } from "./data/post.js";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import moment from "moment";
 import nodemailer from "nodemailer";
-import bodyParser from "body-parser";
 
 let email = [{}];
 
@@ -164,6 +163,7 @@ app.put("/change-pass/:id", async (req, res) => {
 app.get("/posts", async (req, res) => {
   try {
     const users = await pool.query("SELECT * FROM posts");
+    console.log(users);
     res.json(users.rows);
   } catch (err) {
     console.error(err);
@@ -542,7 +542,6 @@ function sendMail(email, name, subject, text) {
     subject: subject,
     text: name + "! " + text,
   };
-
   transporter.sendMail(mailOptions, (err, data) => {
     if (err) {
       return log("Error occurs");
@@ -554,3 +553,4 @@ function sendMail(email, name, subject, text) {
 app.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });
+

@@ -36,6 +36,8 @@ const Home = () => {
 
   const fetchCat = async () => {
     const response = await api.get("categories");
+    
+    console.log(response);
     setCategories(response.data);
   };
 
@@ -46,6 +48,7 @@ const Home = () => {
   };
 
   useEffect(() => {
+    console.log("heii", import.meta.env.VITE_API);
     fetchPost();
     fetchCat();
     fetchUser();
