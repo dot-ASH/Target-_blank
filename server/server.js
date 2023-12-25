@@ -7,6 +7,9 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import moment from "moment";
 import nodemailer from "nodemailer";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 let email = [{}];
 
@@ -38,7 +41,7 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 
-app.get("/", (req, res) => {
+app.get(`/${process.env.ROUTE_KEY}`, (req, res) => {
   res.render("admin");
 });
 
@@ -531,12 +534,12 @@ function sendMail(email, name, subject, text) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.VITE_MAIL,
-      pass: process.env.VITE_PASS,
+      user: process.env.MAIL,
+      pass: process.env.MAIL_PASS,
     },
   });
   let mailOptions = {
-    from: process.env.VITE_MAIL,
+    from: process.env.MAIL,
     to: "me",
     bcc: email,
     subject: subject,

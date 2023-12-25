@@ -10,7 +10,7 @@ const Header = () => {
 
   const [showMenu, setShowMenu] = useState(0);
   const [user, setUser] = useState("");
-
+  console.log("logged", localStorage.getItem("loggedIn"));
   const fetchUser = async () => {
     const response = await api.get(`user/${localStorage.getItem("id")}`);
     setUser(response.data);
