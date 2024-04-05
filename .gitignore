@@ -2,3 +2,9 @@ node_modules
 .env
 react_blog.sql
 reactblog.zip
+
+# ...
+.next
+next-env.d.ts
+dist
+.vercel
