@@ -1,24 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-// import api from "../../data/api";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
-import { AiOutlineStar } from "react-icons/ai";
-import { BiComment } from "react-icons/bi";
 import Link from "next/link";
 import { useData } from "@/context/DataProvider";
 
 const Mycomment = () => {
-  const { user, posts, comments } = useData();
-  const reactBtn = useRef();
-  const [post, setPost] = useState([]);
-  //   const [posts, setPosts] = useState([]);
+  const { user, comments } = useData();
   const [comment, setComments] = useState<PostComment[]>([]);
-  //   const fetchPost = async (id) => {
-  //     const response = await api.get(`posts`);
-  //     setPosts(response.data);
-  //   };
-
   const fetchComment = async () => {
     var result = comments.filter((obj) => obj.commentby === user?.id);
     setComments(result);
@@ -31,8 +20,8 @@ const Mycomment = () => {
   return (
     <section id="my-post">
       <div className="w-full">
-        {comments.length > 0 ? (
-          comments.map((el, index) => {
+        {comment.length > 0 ? (
+          comment.map((el, index) => {
             return (
               <div key={index}>
                 <div className="flex justify-between py-[1rem] w-full bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]">

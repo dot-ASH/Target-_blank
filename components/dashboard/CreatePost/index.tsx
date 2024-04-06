@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  faCheck,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
+import { useData } from "@/context/DataProvider";
+import api from "@/data/api";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import { GiTireIronCross } from "react-icons/gi";
-//   import api from "../../data/api";
 
 const MIN_TEXTAREA_HEIGHT = 45;
 
@@ -19,6 +17,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
   const destextareaRef = useRef<HTMLTextAreaElement>(null);
   const contextareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const { user, refreshModule } = useData();
   const [desValue, setDesValue] = useState<string>("");
   const [contentValue, setContentValue] = useState<string>("");
   const [referenceValue, setReferenceValue] = useState<string>("");
@@ -63,112 +62,110 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
     }
   }, [contentValue]);
 
-  // const submitImage = (e) => {
-  //   e.preventDefault();
-  //   console.log(thumb);
-  //   const data = new FormData();
-  //   data.append("file", thumb);
-  //   data.append(
-  //     "upload_preset",
-  //     process.env.NEXT_PUBLIC_CLOUD_PRESET as string
-  //   );
-  //   data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
+  const submitImage = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
 
-  //   fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
-  //     method: "post",
-  //     body: data,
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setThumbLink(data.url);
-  //       setValidThumbLink(true);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
+    if (thumb) {
+      const data = new FormData();
+      data.append("file", thumb[0]);
+      data.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUD_PRESET as string
+      );
+      data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
 
-  // const submitFile = (e) => {
-  //   if (typeValue === "" || typeValue == "image") {
-  //     e.preventDefault();
-  //     const data = new FormData();
-  //     data.append("file", contentFile);
-  //     data.append(
-  //       "upload_preset",
-  //       process.env.NEXT_PUBLIC_CLOUD_PRESET as string
-  //     );
-  //     data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
+      fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setThumbLink(data.public_id);
+          setValidThumbLink(true);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
 
-  //     fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
-  //       method: "post",
-  //       body: data,
-  //     })
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         setContentFileLink(data.url);
-  //         setValidFileLink(true);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   } else {
-  //     e.preventDefault();
-  //     const data = new FormData();
-  //     data.append("file", contentFile);
-  //     data.append(
-  //       "upload_preset",
-  //       process.env.NEXT_PUBLIC_CLOUD_PRESET as string
-  //     );
-  //     data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
+  const submitFile = (e: { preventDefault: () => void }) => {
+    if (contentFile) {
+      if (typeValue === "" || typeValue == "image") {
+        e.preventDefault();
+        const data = new FormData();
+        data.append("file", contentFile[0]);
+        data.append(
+          "upload_preset",
+          process.env.NEXT_PUBLIC_CLOUD_PRESET as string
+        );
+        data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
 
-  //     fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
-  //       method: "post",
-  //       body: data,
-  //     })
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         setContentFileLink(data.url);
-  //         setValidFileLink(true);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   }
-  // };
+        fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
+          method: "post",
+          body: data,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setContentFileLink(data.public_id);
+            setValidFileLink(true);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        e.preventDefault();
+        const data = new FormData();
+        data.append("file", contentFile[0]);
+        data.append(
+          "upload_preset",
+          process.env.NEXT_PUBLIC_CLOUD_PRESET as string
+        );
+        data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUD_NAME as string);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   var postBy = localStorage.getItem("id");
-  //   console.log(thumbLink);
-  //   console.log(contentFileLink || null);
+        fetch(process.env.NEXT_PUBLIC_UPLOAD_IMAGE as string, {
+          method: "post",
+          body: data,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setContentFileLink(data.public_id);
+            setValidFileLink(true);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }
+  };
 
-  //   try {
-  //     const response = await api.post(
-  //       "posts",
-  //       JSON.stringify({
-  //         title: titleValue,
-  //         postby: postBy,
-  //         description: desValue,
-  //         author: authorValue,
-  //         type: typeValue || "image",
-  //         category: catValue || "sports",
-  //         thumbimage: thumbLink,
-  //         content: contentValue,
-  //         reference: referenceValue,
-  //         contentfilelink: contentFileLink || null,
-  //       }),
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     setSuccess(true);
-  //     window.location.href = "/dashboard";
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      await api.post(
+        "posts",
+        JSON.stringify({
+          title: titleValue,
+          postby: user?.id,
+          description: desValue,
+          author: authorValue,
+          type: typeValue || "image",
+          category: catValue || "sports",
+          thumbimage: thumbLink,
+          content: contentValue,
+          reference: referenceValue,
+          contentfilelink: contentFileLink || null,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setSuccess(true);
+      refreshModule();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <section
@@ -177,7 +174,10 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
     >
       {success ? (
         <section id="success-container w-full section  items-center justify-center">
-          <div className=" flex flex-col section items-center h-full gap-[2rem] pt-[9rem]">
+          <button onClick={onHide} className="m-16">
+            <GiTireIronCross className=" font-bold text-[20px]" />
+          </button>
+          <div className=" flex flex-col section items-center h-full gap-[2rem] pt-[2rem]">
             <div className="items-center container justify-center w-full flex flex-col rounded-[5px] py-[5rem]">
               <div className="w-full items-center border-[0.1rem] border-[black] p-[6rem] rounded-[5px]">
                 <h1 className="text-center">Your post has been posted</h1>
@@ -196,7 +196,10 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
             </h1>
           </div>
           <div className="w-full p-[3rem]">
-            <form className="create-post-form py-[1rem] w-full flex flex-col gap-[2rem] justify-between">
+            <form
+              className="create-post-form py-[1rem] w-full flex flex-col gap-[2rem] justify-between"
+              onSubmit={handleSubmit}
+            >
               <label
                 htmlFor="title"
                 className="flex w-full items-center gap-[2rem] justify-between"
@@ -302,6 +305,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                   style={{ height: "3rem" }}
                   onChange={(e) => setReferenceValue(e.target.value)}
                   value={referenceValue}
+                  required
                 />
               </label>
 
@@ -317,6 +321,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     onChange={(e) => setThumb(e.target.files)}
                     aria-describedby="filenote"
                     className="w-[80%] bg-[#fefae0] p-[0.5rem] rounded-[5px]"
+                    required
                   />
                   <FontAwesomeIcon
                     icon={faCheck}
@@ -326,11 +331,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     icon={faTimes}
                     className={validThumbLink ? "hide" : "text-[#30302c]"}
                   />
-                  <button
-                  // onClick={submitImage}
-                  >
-                    add image
-                  </button>
+                  <button onClick={submitImage}>add image</button>
                 </div>
               </label>
 
@@ -339,8 +340,8 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                 className="flex w-full items-center gap-[2rem] justify-between"
               >
                 <p className="w-max">
-                  Upload {typeValue ? typeValue : "image"}
-                </p>{" "}
+                  Upload {typeValue ? typeValue : "image"}*
+                </p>
                 <div className="w-[80%] flex justify-between items-center">
                   <input
                     type="file"
@@ -351,28 +352,20 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                   />
                   <FontAwesomeIcon
                     icon={faCheck}
-                    className={validThumbLink ? "text-[#262520]" : "hide"}
+                    className={validFileLink ? "text-[#262520]" : "hide"}
                   />
                   <FontAwesomeIcon
                     icon={faTimes}
-                    className={validThumbLink ? "hide" : "text-[#30302c]"}
+                    className={validFileLink ? "hide" : "text-[#30302c]"}
                   />
-                  <button
-                  //  onClick={submitFile}I
-                  >
-                    add file
-                  </button>
+                  <button onClick={submitFile}>add file</button>
                 </div>
               </label>
 
               <div className="w-full flex justify-end p-[1rem]">
                 <div className="flex bg-[#081c15]  text-[#fefae0] rounded-[3px]">
                   <span className="spooky-button">
-                    <button
-                    // onClick={handleSubmit}
-                    >
-                      publish
-                    </button>
+                    <button type="submit">publish</button>
                   </span>
                 </div>
               </div>

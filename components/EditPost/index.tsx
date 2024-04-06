@@ -1,30 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { GiTireIronCross } from "react-icons/gi";
 import api from "@/data/api";
 import { useData } from "@/context/DataProvider";
-
-const MIN_TEXTAREA_HEIGHT = 45;
 
 type ParamProps = {
   post: Post;
   onHide: () => void;
 };
 const EditPost = ({ post, onHide }: ParamProps) => {
+  const { refreshModule } = useData();
   const [desValue, setDesValue] = useState<string>("");
   const [contentValue, setContentValue] = useState<string>("");
   const [referenceValue, setReferenceValue] = useState("");
   const [titleValue, setTitleValue] = useState("");
   const [authorValue, setAuthorValue] = useState("");
-  const [typeValue, setTypeValue] = useState("");
   const [success, setSuccess] = useState(false);
 
   const fetchPost = () => {
     setTitleValue(post.title);
     setAuthorValue(post.author);
     setDesValue(post.description);
-    setTypeValue(post.type);
     setContentValue(post.content);
     setReferenceValue(post.reference);
   };
@@ -43,24 +40,22 @@ const EditPost = ({ post, onHide }: ParamProps) => {
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const response = await api.put(
-        `post/${sessionStorage.getItem("postId")}`,
+      await api.put(
+        `/posts`,
         JSON.stringify({
           title: titleValue,
           description: desValue,
           author: authorValue,
           content: contentValue,
           reference: referenceValue,
+          id: post.id,
         }),
         {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log("heii");
-      console.log(response.data);
-      console.log(JSON.stringify(response));
       setSuccess(true);
-      window.location.href = "/dashboard";
+      refreshModule();
     } catch (err) {
       console.log(err);
     }
@@ -73,10 +68,13 @@ const EditPost = ({ post, onHide }: ParamProps) => {
     >
       {success ? (
         <div id="success-container w-full section  items-center justify-center">
-          <div className=" flex flex-col section items-center h-full gap-[2rem] pt-[9rem]">
+          <button onClick={onHide} className="m-16">
+            <GiTireIronCross className=" font-bold text-[20px]" />
+          </button>
+          <div className=" flex flex-col section items-center h-full gap-[2rem] pt-[2rem]">
             <div className="items-center container justify-center w-full flex flex-col rounded-[5px] py-[5rem]">
               <div className="w-full items-center border-[0.1rem] border-[black] p-[6rem] rounded-[5px]">
-                <h1 className="text-center">Your post has been posted</h1>
+                <h1 className="text-center">Your post has been edited</h1>
               </div>
             </div>
           </div>
@@ -84,7 +82,7 @@ const EditPost = ({ post, onHide }: ParamProps) => {
       ) : (
         <div className="flex flex-col w-[80%] h-[80%] m-[3rem]">
           <button onClick={onHide}>
-            <GiTireIronCross className=" font-bold text-[20px]" />{" "}
+            <GiTireIronCross className=" font-bold text-[20px]" />
           </button>
           <div>
             <h1 className=" uppercase font-bold text-center my-[1rem]">

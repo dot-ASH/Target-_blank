@@ -9,6 +9,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
+import { useAuth } from "./AuthProvider";
 
 interface DataContextType {
   user: User | null;
@@ -18,7 +19,6 @@ interface DataContextType {
   comments: PostComment[];
   postReact: PostReact[];
   saved: Saved[];
-  loading: boolean;
   refreshModule: () => void;
 }
 
@@ -30,14 +30,12 @@ const DataContext = createContext<DataContextType>({
   comments: [],
   postReact: [],
   saved: [],
-  loading: true,
   refreshModule: () => {},
 });
 
 const DataProvider = ({ children }: { children: ReactNode }) => {
-  const userData = { id: 1 };
+  const { sessionUser, initialized, session } = useAuth();
   const [toggleRefresh, setRefresh] = useState<boolean>();
-  const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -51,29 +49,28 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getUserData = useCallback(async () => {
-    if (userData) {
+    if (sessionUser) {
       try {
         const { data } = await api.get("users");
         setUsers(data);
-        const foundUser = data.find((users: User) => users.id === 1);
+        const foundUser = data.find(
+          (users: User) => users.id === parseInt(sessionUser.id, 10)
+        );
         setUser(foundUser);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const getPostData = useCallback(async () => {
     try {
       const { data } = await api.get("posts");
-      const sortedPosts: Post[] = [...data].sort(
-        (a, b) => b.reactcount - a.reactcount
-      );
-      setPosts(sortedPosts);
+      setPosts(data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const getCategoriesData = useCallback(async () => {
     try {
@@ -82,35 +79,37 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const getSavedData = useCallback(async () => {
-    if (userData) {
+    if (sessionUser) {
       try {
         const { data } = await api.get("saved");
         const myData: Saved[] = data.filter(
-          (saved: { savedby: number }) => saved.savedby === userData.id
+          (saved: { savedby: number }) =>
+            saved.savedby === parseInt(sessionUser.id, 10)
         );
         setSaved(myData);
       } catch (error) {
         console.error("Error fetching Saved:", error);
       }
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const getPostReactData = useCallback(async () => {
-    if (userData) {
+    if (sessionUser) {
       try {
         const { data } = await api.get("reacts");
         const myData: PostReact[] = data.filter(
-          (react: { reactby: number }) => react.reactby === userData.id
+          (react: { reactby: number }) =>
+            react.reactby === parseInt(sessionUser.id, 10)
         );
         setPostReact(myData);
       } catch (error) {
         console.error("Error fetching PostReact:", error);
       }
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const getCommentData = useCallback(async () => {
     try {
@@ -119,7 +118,7 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Error fetching Comments:", error);
     }
-  }, [toggleRefresh]);
+  }, [session, toggleRefresh]);
 
   const dataFetchingFunctions = [
     getUserData,
@@ -134,10 +133,6 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
     dataFetchingFunctions.forEach((fetchData) => fetchData());
   }, dataFetchingFunctions);
 
-  // useEffect(() => {
-  //   setLoading(false);
-  // }, []);
-
   return (
     <DataContext.Provider
       value={{
@@ -148,15 +143,10 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
         comments,
         postReact,
         saved,
-        loading,
         refreshModule,
       }}
     >
-      {/* {loading || typeof loading === "undefined" ? ( */}
-      {/* <div>loading...</div>
-      ) : ( */}
-      {children}
-      {/* )} */}
+      {!initialized ? <div>loading.....</div> : children}
     </DataContext.Provider>
   );
 };

@@ -2,16 +2,13 @@
 
 import React, { useState, useEffect, useCallback, Fragment } from "react";
 
-// import api from "../data/api";
 import { AiOutlineDelete, AiOutlineStar } from "react-icons/ai";
 import { BiComment } from "react-icons/bi";
 import { TbExternalLink } from "react-icons/tb";
 import { RiDeleteBin6Fill, RiPenNibFill } from "react-icons/ri";
-import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import moment from "moment";
 import "moment-timezone";
-// import EditPost from "./EditPost";
 import { Player } from "video-react";
 import "@/node_modules/video-react/styles/scss/video-react.scss";
 import { useData } from "@/context/DataProvider";
@@ -19,6 +16,9 @@ import Link from "next/link";
 import EditPost from "@/components/EditPost";
 import { CldImage } from "next-cloudinary";
 import api from "@/data/api";
+import { useRouter } from "next/navigation";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 type ParamProps = {
   params: {
@@ -28,6 +28,7 @@ type ParamProps = {
 
 const Page = ({ params }: ParamProps) => {
   const { id } = params;
+  const router = useRouter();
   const { posts, user, users, comments, postReact, saved, refreshModule } =
     useData();
 
@@ -36,7 +37,7 @@ const Page = ({ params }: ParamProps) => {
   const [ifReacted, setIfReacted] = useState(false);
   const [reactedId, setReactId] = useState<number | null>(null);
   const [savedId, setSavedId] = useState<number | null>(null);
-  const [timezone, setTimezone] = useState("");
+  // const [timezone, setTimezone] = useState("");
   const [reactCount, setReactCount] = useState<number>();
   const [newComment, setNewComment] = useState("");
   const [isSaved, setSaved] = useState<boolean>(false);
@@ -87,15 +88,8 @@ const Page = ({ params }: ParamProps) => {
   ];
 
   useEffect(() => {
-    console.log(comment);
     dataFetchingFunctions.forEach((fetchData) => fetchData());
   }, dataFetchingFunctions);
-
-  useEffect(() => {
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log(userTimeZone);
-    setTimezone(userTimeZone);
-  }, []);
 
   const getCommentName = (id: number): string | undefined => {
     const commentby = users.find((obj) => obj.id === id);
@@ -165,24 +159,25 @@ const Page = ({ params }: ParamProps) => {
       }
     };
 
-  // const deletePost = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.delete(
-  //       `post/${sessionStorage.getItem("postId")}`
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     window.location.href = "/dashboard";
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log(".....");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+  const deletePost = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      await api.delete(`/posts`, {
+        data: {
+          id: post?.id,
+        },
+      });
+      refreshModule();
+      router.push("/dashboard");
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log(".....");
+      }
+      console.log(err);
+    }
+  };
 
   const reactClick = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -243,11 +238,6 @@ const Page = ({ params }: ParamProps) => {
       console.log("Error:", err);
     }
   };
-
-  // const createBtn = () => {
-  //   document.body.style.overflow = "hidden";
-  //   document.getElementById("edit-post").style.display = "block";
-  // };
 
   const savePost = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -327,9 +317,9 @@ const Page = ({ params }: ParamProps) => {
           <div className="content-body flex flex-col w-full gap-[3rem] mt-[2rem] pt-[3rem] marker: border-t-[0.1rem] border-[#000000be]">
             <section
               id="my-post"
-              className="flex w-full pb-[3rem] gap-[3rem] border-b-[0.1rem] border-[#000000be]"
+              className="relative flex w-full pb-[3rem] gap-[3rem] border-b-[0.1rem] border-[#000000be]"
             >
-              <div className="content-body-info flex flex-col max-h-[300px] gap-[1rem] border-r-[0.15rem] border-[#0000007e] rounded-[2px] pr-[2rem]">
+              <div className="content-body-info sticky top-16 flex flex-col max-h-[300px] gap-[1rem] border-r-[0.15rem] border-[#0000007e] rounded-[2px] pr-[2rem]">
                 <div className=" flex text-left gap-[1.5rem] my-[1rem]">
                   <div className="flex items-center">
                     {user ? (
@@ -360,7 +350,7 @@ const Page = ({ params }: ParamProps) => {
                         )}
                       </>
                     ) : (
-                      <Tippy content="you need to be logged in">
+                      <Tippy content={<span>you need to be logged in</span>}>
                         <button disabled>
                           <AiOutlineStar className=" text-[36px]" />
                         </button>
@@ -376,24 +366,32 @@ const Page = ({ params }: ParamProps) => {
                       </a>
                     </Tippy>
                     &nbsp;
-                    <div> {post && post.commentcount} </div>
+                    <div> {post?.commentcount} </div>
                   </div>
                 </div>
                 <div className={`flex gap-[1rem]`}>
                   <div className="bg-[#00000010] p-[0.5rem] rounded-[15px] duration-[250ms] hover:bg-[#081c15] hover:text-[#fefae0] cursor-pointer whitespace-nowrap">
-                    # {post && post.category}
+                    <Link href={`/categories/${post?.category}`}>
+                      # {post?.category}
+                    </Link>
                   </div>
                   <div className="bg-[#00000010] p-[0.5rem] rounded-[15px] duration-[250ms] hover:bg-[#081c15] hover:text-[#fefae0] cursor-pointer">
-                    {post && post.type}
+                    <Link href={`/type/${post?.type}`}>{post?.type}</Link>
                   </div>
                 </div>
-                <div
-                  className={post && post.author ? `flex gap-[1rem]` : `hidden`}
-                >
+                <div className="flex gap-[1rem]">
                   <p className="italic underline whitespace-nowrap">
                     posted by:
                   </p>
-                  <p className=" whitespace-nowrap">{post && post.author}</p>
+                  <p className=" whitespace-nowrap">{post?.author}</p>
+                </div>
+                <div className="flex gap-[1rem]">
+                  <p className="italic underline whitespace-nowrap">
+                    Posted at:
+                  </p>
+                  <p className=" whitespace-nowrap">
+                    {moment(post?.date).add(6, "hours").format("LLL")}
+                  </p>
                 </div>
 
                 {user && (
@@ -414,7 +412,7 @@ const Page = ({ params }: ParamProps) => {
                           ? "bg-[#723d46] h-full p-[0.5rem] rounded-[5px]"
                           : "hide"
                       }
-                      // onClick={deletePost}
+                      onClick={deletePost}
                     >
                       <RiDeleteBin6Fill className="text-[#fefae0] text-[22px] " />{" "}
                     </button>
@@ -433,9 +431,9 @@ const Page = ({ params }: ParamProps) => {
               </div>
 
               <div className="flex grow p-[3rem] bg-[#00000010] rounded-[10px] ">
-                <div className="no-scroll-bar max-h-[600px] overflow-y-scroll pt-[1rem]">
+                <div className="no-scroll-bar pt-[1rem]">
                   <p className="first-letter:text-[42px] text-justify leading-[2rem] pb-[2rem]">
-                    {post && post.content}
+                    {post?.content}
                   </p>
 
                   {post?.contentfilelink && (
@@ -459,7 +457,7 @@ const Page = ({ params }: ParamProps) => {
                             fluid={false}
                             width={400}
                             height={400}
-                            src={post && post.contentfilelink}
+                            src={post?.contentfilelink}
                           />
                         </div>
                       )}
@@ -468,9 +466,7 @@ const Page = ({ params }: ParamProps) => {
 
                   <div
                     className={
-                      post && post.reference
-                        ? `flex gap-[1rem] mt-[1rem]`
-                        : `hidden`
+                      post?.reference ? `flex gap-[1rem] mt-[1rem]` : `hidden`
                     }
                   >
                     <p className="">Learn more here</p>
@@ -574,7 +570,7 @@ const Page = ({ params }: ParamProps) => {
                   </form>
                 </div>
               ) : (
-                <div className="text-center">
+                <div className="text-center m-12">
                   You need to be logged in to comment
                 </div>
               )}

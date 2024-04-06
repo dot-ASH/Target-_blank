@@ -11,7 +11,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useData } from "@/context/DataProvider";
 import api from "@/data/api";
-// import api from "@/data/api"
 
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
@@ -40,7 +39,6 @@ const Page = () => {
 
   const submitImage = () => {
     if (thumb) {
-      console.log(thumb[0]);
       const data = new FormData();
       data.append("file", thumb[0]);
       data.append(
@@ -68,7 +66,7 @@ const Page = () => {
     e.preventDefault();
 
     try {
-      const response = await api.put(
+      await api.put(
         `users`,
         JSON.stringify({
           thumb: thumbLink || user?.thumb,
@@ -80,8 +78,6 @@ const Page = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log(response.data);
-      console.log(JSON.stringify(response));
       setSuccess(true);
       refreshModule();
     } catch (err) {

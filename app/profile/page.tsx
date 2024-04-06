@@ -4,18 +4,19 @@ import React, { Fragment } from "react";
 import api from "@/data/api";
 import "@/styles/main.scss";
 import { AiOutlineProfile } from "react-icons/ai";
-import { RiLockPasswordLine } from "react-icons/ri";
 import { FiLogOut } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import Link from "next/link";
 import { useData } from "@/context/DataProvider";
 import { CldImage } from "next-cloudinary";
+import { logout } from "@/lib/auth";
 
 const Profile = () => {
   const { user, refreshModule } = useData();
 
-  function logOut() {
-    console.log("Logged Out");
+  async function logOut() {
+    await logout();
+    refreshModule();
     window.location.href = "/";
   }
 
@@ -23,7 +24,7 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const response = await api.put(
+      await api.put(
         `users/newsletter`,
         JSON.stringify({
           newsletter: true,
@@ -33,8 +34,6 @@ const Profile = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log(response.data);
-      console.log(JSON.stringify(response));
       refreshModule();
     } catch (err) {
       console.log(err);
@@ -45,7 +44,7 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const response = await api.put(
+      await api.put(
         `users/newsletter`,
         JSON.stringify({
           newsletter: false,
@@ -55,8 +54,6 @@ const Profile = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log(response.data);
-      console.log(JSON.stringify(response));
       refreshModule();
     } catch (err) {
       console.log(err);
@@ -91,7 +88,9 @@ const Profile = () => {
                 {user && (
                   <Fragment>
                     <h1 className="font-bold text-2xl">
-                      {user.full_name || "Havent Provide a name"}
+                      {user.full_name ||
+                        user.username ||
+                        "Havent Provide a name"}
                     </h1>
                     <h1>{user.email}</h1>
                     <div className="italic">
@@ -124,13 +123,6 @@ const Profile = () => {
               >
                 <AiOutlineProfile className="mt-[0.2rem]" />
                 Edit Profile
-              </Link>
-              <Link
-                href="/profile/change-pass"
-                className="text-left flex gap-[1rem]"
-              >
-                <RiLockPasswordLine className="mt-[0.2rem]" />
-                Change Password
               </Link>
               <button
                 onClick={logOut}

@@ -1,20 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-// import api from "/data/api";
-import axios from "axios";
+import React, { useState } from "react";
 import Myposts from "@/components/dashboard/Myposts";
 import Mysave from "@/components/dashboard/Mysave";
 import Mycomment from "@/components/dashboard/Mycomment";
 import { GoPlus } from "react-icons/go";
 
 import Tippy from "@tippyjs/react";
-import { useData } from "@/context/DataProvider";
 import CreatePost from "@/components/dashboard/CreatePost";
 
 const Page = () => {
-  const { user } = useData();
-
   const [myPost, setmyPost] = useState(true);
   const [mySave, setmySave] = useState(false);
   const [myComment, setComment] = useState(false);

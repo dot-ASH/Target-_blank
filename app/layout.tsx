@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { DataProvider } from "@/context/DataProvider";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Target Blank",
@@ -15,12 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <DataProvider>
-          <Header />
-          {children}
-          <Footer />
-        </DataProvider>
+      <body className="min-h-screen flex flex-col">
+        <AuthProvider>
+          <DataProvider>
+            <Header />
+            {children}
+            <Footer />
+          </DataProvider>
+        </AuthProvider>
       </body>
     </html>
   );

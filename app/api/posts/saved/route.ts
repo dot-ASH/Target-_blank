@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-  console.log(res);
+
   try {
     const result = await sql`
     INSERT INTO saved (postid, savedby)

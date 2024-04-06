@@ -6,6 +6,7 @@ import { BiComment } from "react-icons/bi";
 import Link from "next/link";
 import moment from "moment";
 import { useData } from "@/context/DataProvider";
+import { CldImage } from "next-cloudinary";
 
 type ParapProps = {
   params: {
@@ -114,10 +115,13 @@ const Page = ({ params }: ParapProps) => {
                         </div>
                       </div>
                       <div>
-                        <img
+                        <CldImage
+                          width={400}
+                          height={400}
+                          alt=""
                           src={el.thumbimage}
                           className="h-[300px] w-[400px] object-cover rounded-[5px]"
-                        ></img>
+                        />
                       </div>
                     </div>
                   </div>

@@ -58,7 +58,7 @@ const Mypost = () => {
                         <div className="flex">
                           <button>
                             <BiComment className="text-[22px]" />
-                          </button>{" "}
+                          </button>
                           &nbsp;
                           <div> {el.commentcount}</div>
                         </div>

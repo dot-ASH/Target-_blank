@@ -13,32 +13,28 @@ import { GiDandelionFlower } from "react-icons/gi";
 import "swiper/css";
 import { AiFillStar } from "react-icons/ai";
 import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 import "@/styles/main.scss";
 import { CldImage } from "next-cloudinary";
 import { useData } from "@/context/DataProvider";
+import api from "@/data/api";
 
 const Page = () => {
-  const { posts, user, categories } = useData();
+  const { posts, user, categories, refreshModule } = useData();
   const [allPosts, setAllPosts] = useState<Post[]>([]);
-  const [postCount, setCount] = useState(15);
   const [height, setHeight] = useState("5rem");
   const [activeSection, setActiveSection] = useState("");
-  const [errMsg, setErrMsg] = useState("");
 
   const fetchPost = useCallback(() => {
     if (posts) {
       const allPosts: Post[] = posts.sort((a, b) => b.id - a.id);
-      setAllPosts(allPosts.slice(0, 20));
+      setAllPosts(allPosts.slice(0, 15));
     }
   }, [posts]);
 
   useEffect(() => {
     fetchPost();
   }, [fetchPost]);
-
-  useEffect(() => {
-    console.log(categories[1]);
-  }, [categories]);
 
   const handleScroll = (_event: any) => {
     if (window.scrollY > 10) {
@@ -48,9 +44,6 @@ const Page = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    console.log(
-      1935 + (document.getElementById("posts")?.scrollHeight ?? 0) - 1500
-    );
     window.addEventListener("scroll", () => {
       if (window.scrollY >= 0 && window.scrollY < 617) {
         setActiveSection("home");
@@ -70,46 +63,25 @@ const Page = () => {
     });
   }, []);
 
-  //
+  const subsCribe = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
 
-  //
-  // allPosts.sort((b, a) => a.id - b.id);
-
-  // function postToken(id: string, by: string) {
-  //   sessionStorage.removeItem("postId");
-  //   sessionStorage.removeItem("postBy");
-  //   sessionStorage.setItem("postId", id);
-  //   sessionStorage.setItem("postBy", by);
-  // }
-
-  // function typeToken(t: string) {
-  //   sessionStorage.removeItem("type");
-  //   sessionStorage.setItem("type", t);
-  // }
-
-  // const subsCribe = async (e: { preventDefault: () => void }) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await api.put(
-  //       `newsletter/${localStorage.getItem("id")}`,
-  //       JSON.stringify({}),
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     window.location.href = "/";
-  //   } catch (err) {
-  //     if (!err) {
-  //       setErrMsg("No Server Response");
-  //     } else {
-  //       setErrMsg("...");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+    try {
+      await api.put(
+        `users/newsletter`,
+        JSON.stringify({
+          newsletter: true,
+          id: user?.id,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      refreshModule();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <main>
@@ -335,103 +307,89 @@ const Page = () => {
           </h1>
           <div className="popular flex  p-[2rem] pb-[5rem] flex-col gap-[4rem] rounded-[5px] px-[2rem]">
             <h1 className="uppercase text-[#fefae0] w-full font-bold text-center ">
-              Popular on this month
+              Popular posts
             </h1>
             <div className="flex justify-around flex-wrap">
               <div className="flex justify-between flex-wrap py-[3rem]">
-                {posts.map((el, indexCount) => {
-                  if (indexCount < 3)
-                    return (
-                      <div
-                        className="w-[30%] h-[auto] border-[white] bg-[#fefae0] border-[0.1rem]"
-                        key={indexCount}
-                      >
-                        <div className="mx-[1rem] py-[1rem]">
-                          {/* <img
-                            src={el.thumbimage}
-                            alt=""
-                            className="post-image my-[1rem] rounded-[5px] h-[200px]"
-                          /> */}
-                          <div className="text-left py-[1rem]" key={el.id}>
-                            <button
-                            // onClick={() =>
-                            //   postToken(
-                            //     el.id.toString(),
-                            //     el.postBy.toString()
-                            //   )
-                            // }
-                            >
-                              <Link href={`/posts/${el.id}`}>
-                                <h1 className="font-bold text-left">
-                                  {el.title}
-                                </h1>
-                              </Link>
-                            </button>
-                          </div>
-                          <div className="text-left">
-                            <div className="italic flex items-center gap-[1rem]">
-                              {" "}
-                              <div className="flex items-center gap-[0.5rem]">
-                                <AiFillStar className="react-star text-[22px]" />
-                                <p> {el.reactcount}</p>
+                {posts
+                  .sort((a, b) => b.reactcount - a.reactcount)
+                  .map((el, indexCount) => {
+                    if (indexCount < 3)
+                      return (
+                        <div
+                          className="w-[30%] h-[auto] border-[white] bg-[#fefae0] border-[0.1rem]"
+                          key={indexCount}
+                        >
+                          <div className="mx-[1rem] py-[1rem]">
+                            <CldImage
+                              src={el.thumbimage}
+                              alt=""
+                              width={400}
+                              height={400}
+                              className="post-image my-[1rem] rounded-[5px] h-[200px]"
+                            />
+                            <div className="text-left py-[1rem]" key={el.id}>
+                              <button>
+                                <Link href={`/posts/${el.id}`}>
+                                  <h1 className="font-bold text-left">
+                                    {el.title}
+                                  </h1>
+                                </Link>
+                              </button>
+                            </div>
+                            <div className="text-left">
+                              <div className="italic flex items-center gap-[1rem]">
+                                <div className="flex items-center gap-[0.5rem]">
+                                  <AiFillStar className="react-star text-[22px]" />
+                                  <p> {el.reactcount}</p>
+                                </div>
+                                - &nbsp;
+                                {moment(el.date).format("MMM Do YY")}
                               </div>
-                              - &nbsp;
-                              {moment(el.date).format("MMM Do YY")}
+                            </div>
+                            <div className="text-left py-[1rem]">
+                              <p className="">{el.description}</p>
                             </div>
                           </div>
-                          <div className="text-left py-[1rem]">
-                            <p className="">{el.description}</p>
-                          </div>
                         </div>
-                      </div>
-                    );
-                })}
+                      );
+                  })}
               </div>
             </div>
           </div>
           <div className="border-b-[0.1rem] border-[#081c15]">
             <div className="flex justify-between flex-wrap py-[3rem]">
-              {allPosts
-                .sort((b, a) => a.id - b.id)
-                .map((el, indexCount) => {
-                  if (indexCount < postCount)
-                    return (
-                      <div
-                        className="py-[1rem] w-[32%] bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]"
-                        key={indexCount}
-                      >
-                        {/* <img
-                          src={el.thumbimage}
-                          alt=""
-                          className="post-image my-[1rem] rounded-[5px] h-[250px]"
-                        /> */}
-                        <div className="text-left py-[1rem]" key={el.id}>
-                          <button
-                          // onClick={() =>
-                          //   postToken(
-                          //     el.id.toString(),
-                          //     el.postBy.toString()
-                          //   )
-                          // }
-                          >
-                            <Link href={`/posts/${el.id}`}>
-                              <h1 className="font-bold text-left">
-                                {el.title}
-                              </h1>
-                            </Link>
-                          </button>
-                        </div>
-                        <div className="text-left">
-                          <p className="italic">
-                            {moment(el.date).format("MMM Do YY")}
-                          </p>
-                        </div>
-                        <div className="text-left py-[1rem]">
-                          <p className="">{el.description}</p>
-                        </div>
-                      </div>
-                    );
-                })}
+              {allPosts.map((el, indexCount) => {
+                return (
+                  <div
+                    className="py-[1rem] w-[32%] bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]"
+                    key={indexCount}
+                  >
+                    <CldImage
+                      src={el.thumbimage}
+                      alt=""
+                      width={400}
+                      height={400}
+                      className="post-image my-[1rem] rounded-[5px] h-[250px]"
+                    />
+                    <div className="text-left py-[1rem]" key={el.id}>
+                      <button>
+                        <Link href={`/posts/${el.id}`}>
+                          <h1 className="font-bold text-left">{el.title}</h1>
+                        </Link>
+                      </button>
+                    </div>
+                    <div className="text-left">
+                      <p className="italic">
+                        {moment(el.date).format("MMM Do YY")}
+                      </p>
+                    </div>
+                    <div className="text-left py-[1rem]">
+                      <p className="">{el.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <div className=" flex flex-col mt-[-1.5rem] mb-[2rem] justify-center items-center">
               <Link href={"/posts"}>
@@ -456,7 +414,7 @@ const Page = () => {
             <li>{moment().format("MMM Do YY")}</li>
           </div>
           <div className="flex flex-row justify-center items-center gap-[2rem]">
-            <a
+            <Link
               href="#home"
               className={
                 activeSection == "home"
@@ -465,8 +423,8 @@ const Page = () => {
               }
             >
               home
-            </a>
-            <a
+            </Link>
+            <Link
               href="#info"
               className={
                 activeSection == "info"
@@ -475,8 +433,8 @@ const Page = () => {
               }
             >
               infos
-            </a>
-            <a
+            </Link>
+            <Link
               href="#features"
               className={
                 activeSection == "feature"
@@ -485,8 +443,8 @@ const Page = () => {
               }
             >
               features
-            </a>
-            <a
+            </Link>
+            <Link
               href="#posts"
               className={
                 activeSection == "post"
@@ -495,8 +453,8 @@ const Page = () => {
               }
             >
               posts
-            </a>
-            <a
+            </Link>
+            <Link
               href="#footer"
               className={
                 activeSection == "support"
@@ -505,8 +463,7 @@ const Page = () => {
               }
             >
               support
-            </a>
-            {/* <Link href="#home">home</Link> */}
+            </Link>
           </div>
           <div className="flex flex-col justify-center">
             <div
@@ -516,15 +473,17 @@ const Page = () => {
               {user ? (
                 <Tippy
                   content={
-                    user && user.newsletter
-                      ? "Subscribed! You'll be in our touch"
-                      : "Subscribe to our newsletter!"
+                    <span>
+                      {user && user.newsletter
+                        ? "Subscribed! You'll be in our touch"
+                        : "Subscribe to our newsletter!"}
+                    </span>
                   }
                 >
                   <span className="spooky-button">
                     <button
                       disabled={user && user.newsletter ? true : false}
-                      // onClick={subsCribe}
+                      onClick={subsCribe}
                       className="uppercase"
                     >
                       {user && user.newsletter ? "subscribed!" : "Newsletter"}
@@ -532,7 +491,9 @@ const Page = () => {
                   </span>
                 </Tippy>
               ) : (
-                <Tippy content={"You need to be logged in to subscribe!"}>
+                <Tippy
+                  content={<span>You need to be logged in to subscribe!</span>}
+                >
                   <span className="spooky-button">
                     <button disabled className="uppercase">
                       newsletter

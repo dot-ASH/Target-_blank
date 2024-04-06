@@ -19,8 +19,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.log(res);
-
   try {
     const result = await sql`
     INSERT INTO comments (postid, commentby, comment)
