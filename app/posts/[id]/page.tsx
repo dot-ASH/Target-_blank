@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  Fragment,
-} from "react";
+import React, { useState, useEffect, useCallback, Fragment } from "react";
 
 // import api from "../data/api";
 import { AiOutlineDelete, AiOutlineStar } from "react-icons/ai";
@@ -15,11 +10,15 @@ import { RiDeleteBin6Fill, RiPenNibFill } from "react-icons/ri";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import moment from "moment";
+import "moment-timezone";
 // import EditPost from "./EditPost";
 import { Player } from "video-react";
 import "@/node_modules/video-react/styles/scss/video-react.scss";
 import { useData } from "@/context/DataProvider";
 import Link from "next/link";
+import EditPost from "@/components/EditPost";
+import { CldImage } from "next-cloudinary";
+import api from "@/data/api";
 
 type ParamProps = {
   params: {
@@ -29,19 +28,20 @@ type ParamProps = {
 
 const Page = ({ params }: ParamProps) => {
   const { id } = params;
-  const { posts, user, users, comments, postReact, saved } = useData();
+  const { posts, user, users, comments, postReact, saved, refreshModule } =
+    useData();
 
   const [post, setPost] = useState<Post>();
   const [comment, setComment] = useState<PostComment[]>([]);
   const [ifReacted, setIfReacted] = useState(false);
+  const [reactedId, setReactId] = useState<number | null>(null);
+  const [savedId, setSavedId] = useState<number | null>(null);
+  const [timezone, setTimezone] = useState("");
   const [reactCount, setReactCount] = useState<number>();
-  const [newComment, setNewComment] = useState({
-    comment: "",
-    commentby: user?.id as number | 0,
-    postid: parseInt(id, 10),
-  });
+  const [newComment, setNewComment] = useState("");
   const [isSaved, setSaved] = useState<boolean>(false);
   const [isAuthor, setAuthor] = useState<boolean>(false);
+  const [showEditPost, setEditPost] = useState<boolean>(false);
 
   const fetchPost = useCallback(async () => {
     const foundPost = posts.find((obj) => obj.id === parseInt(id, 10));
@@ -63,12 +63,20 @@ const Page = ({ params }: ParamProps) => {
 
   const fetchSave = useCallback(async () => {
     const foundSaved = saved.find((obj) => obj.postid === parseInt(id, 10));
-    setSaved(foundSaved ? true : false);
+    if (foundSaved) {
+      setSaved(true);
+      setSavedId(foundSaved.id);
+    }
   }, [saved]);
 
   const fetchReact = useCallback(async () => {
-    const foundSaved = postReact.find((obj) => obj.postid === parseInt(id, 10));
-    setIfReacted(foundSaved ? true : false);
+    const foundSaved = postReact.find(
+      (obj) => obj.postid === parseInt(id, 10) && obj.reactby === user?.id
+    );
+    if (foundSaved) {
+      setIfReacted(true);
+      setReactId(foundSaved.id);
+    }
   }, [postReact]);
 
   const dataFetchingFunctions = [
@@ -79,61 +87,83 @@ const Page = ({ params }: ParamProps) => {
   ];
 
   useEffect(() => {
+    console.log(comment);
     dataFetchingFunctions.forEach((fetchData) => fetchData());
   }, dataFetchingFunctions);
+
+  useEffect(() => {
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log(userTimeZone);
+    setTimezone(userTimeZone);
+  }, []);
 
   const getCommentName = (id: number): string | undefined => {
     const commentby = users.find((obj) => obj.id === id);
     return commentby?.full_name;
   };
 
-  // const sendComment = async (e) => {
-  //   e.preventDefault();
+  const sendComment = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
 
-  //   try {
-  //     const response = await api.post(
-  //       `comments/${sessionStorage.getItem("postId")}`,
-  //       JSON.stringify({
-  //         commentby: localStorage.getItem("id"),
-  //         comment: newComment,
-  //         postby: user[0] && user[0].id,
-  //       }),
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     window.location.href = "/show-post";
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log("comment failed");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+    try {
+      await api.post(
+        `/posts/comment`,
+        JSON.stringify({
+          postid: post?.id,
+          commentby: user?.id,
+          comment: newComment,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-  // const deleteComment = (id) => async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.delete(
-  //       `comments/${sessionStorage.getItem("postId")}`,
-  //       { data: { id: id } }
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     window.location.href = "/show-post";
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log("...");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+      await api.put(
+        `/posts/comment`,
+        JSON.stringify({
+          postid: post?.id,
+          commentcount: (post?.commentcount as number) + 1,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      setNewComment("");
+      refreshModule();
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log("comment failed");
+      }
+      console.log(err);
+    }
+  };
+
+  const deleteComment =
+    (id: number) => async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      try {
+        await api.delete(`/posts/comment`, {
+          data: {
+            commentcount: (post?.commentcount as number) - 1,
+            postid: post?.id,
+            id: id,
+          },
+        });
+        setIfReacted(false);
+        setReactCount((reactCount as number) - 1);
+        refreshModule();
+      } catch (err) {
+        if (!err) {
+          console.log("No Server Response");
+        } else {
+          console.log("Error:", err);
+        }
+        console.log("Error:", err);
+      }
+    };
 
   // const deletePost = async (e) => {
   //   e.preventDefault();
@@ -154,103 +184,116 @@ const Page = ({ params }: ParamProps) => {
   //   }
   // };
 
-  // const reactClick = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.post(
-  //       `reacts/${sessionStorage.getItem("postId")}`,
-  //       JSON.stringify({
-  //         reactby: localStorage.getItem("id"),
-  //       }),
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     setIfReacted(true);
-  //     setReactCount(reactCount + 1);
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log("...");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+  const reactClick = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      await api.post(
+        `/posts/react`,
+        JSON.stringify({
+          reactby: user?.id,
+          postid: post?.id,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-  // const reactRemove = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.delete(
-  //       `reactby/${sessionStorage.getItem("postId")}/${localStorage.getItem(
-  //         "id"
-  //       )}`
-  //     );
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //     setIfReacted(false);
-  //     setReactCount(reactCount - 1);
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log("....");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+      await api.put(
+        `/posts/react`,
+        JSON.stringify({
+          postid: post?.id,
+          reactcount: (reactCount as number) + 1,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setIfReacted(true);
+      setReactCount((reactCount as number) + 1);
+      refreshModule();
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log("...");
+      }
+      console.log(err);
+    }
+  };
+
+  const reactRemove = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
+    try {
+      await api.delete(`/posts/react`, {
+        data: {
+          reactcount: (reactCount as number) - 1,
+          postid: post?.id,
+          id: reactedId,
+        },
+      });
+      setIfReacted(false);
+      setReactCount((reactCount as number) - 1);
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log("Error:", err);
+      }
+      console.log("Error:", err);
+    }
+  };
 
   // const createBtn = () => {
   //   document.body.style.overflow = "hidden";
   //   document.getElementById("edit-post").style.display = "block";
   // };
 
-  // const savePost = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.post(
-  //       `saved/${sessionStorage.getItem("postId")}/${localStorage.getItem(
-  //         "id"
-  //       )}`,
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-  //     setSaved(true);
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log(".....");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+  const savePost = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    console.log("heii");
+    try {
+      await api.post(
+        `/posts/saved`,
+        JSON.stringify({
+          savedby: user?.id,
+          postid: post?.id,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setSaved(true);
+      refreshModule();
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log(".....");
+      }
+      console.log(err);
+    }
+  };
 
-  // const undoSave = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await api.delete(
-  //       `saved/${sessionStorage.getItem("postId")}/${localStorage.getItem(
-  //         "id"
-  //       )}`
-  //     );
-  //     setSaved(false);
-  //     console.log(response.data);
-  //     console.log(JSON.stringify(response));
-  //   } catch (err) {
-  //     if (!err?.response) {
-  //       console.log("No Server Response");
-  //     } else {
-  //       console.log("....");
-  //     }
-  //     console.log(err);
-  //   }
-  // };
+  const undoSave = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      await api.delete(`/posts/saved`, {
+        data: {
+          postid: post?.id,
+          id: savedId,
+        },
+      });
+      setSaved(false);
+    } catch (err) {
+      if (!err) {
+        console.log("No Server Response");
+      } else {
+        console.log("....");
+      }
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -270,10 +313,15 @@ const Page = ({ params }: ParamProps) => {
                 </p>
               </div>
 
-              <img
-                src={post && post.thumbimage}
-                className="relative h-full w-full object-cover opacity-[0.6] rounded-[5px]"
-              ></img>
+              {post && (
+                <CldImage
+                  alt=""
+                  src={post.thumbimage}
+                  width={1000}
+                  height={1000}
+                  className="relative h-full w-full object-cover opacity-[0.6] rounded-[5px]"
+                />
+              )}
             </div>
           </div>
           <div className="content-body flex flex-col w-full gap-[3rem] mt-[2rem] pt-[3rem] marker: border-t-[0.1rem] border-[#000000be]">
@@ -284,7 +332,7 @@ const Page = ({ params }: ParamProps) => {
               <div className="content-body-info flex flex-col max-h-[300px] gap-[1rem] border-r-[0.15rem] border-[#0000007e] rounded-[2px] pr-[2rem]">
                 <div className=" flex text-left gap-[1.5rem] my-[1rem]">
                   <div className="flex items-center">
-                    {localStorage.getItem("id") ? (
+                    {user ? (
                       <>
                         {isAuthor ? (
                           <button disabled>
@@ -298,7 +346,7 @@ const Page = ({ params }: ParamProps) => {
                           >
                             <button
                               value={post && post.reactcount}
-                              // onClick={!ifReacted ? reactClick : reactRemove}
+                              onClick={!ifReacted ? reactClick : reactRemove}
                             >
                               <AiOutlineStar
                                 className={
@@ -340,11 +388,11 @@ const Page = ({ params }: ParamProps) => {
                   </div>
                 </div>
                 <div
-                  className={
-                    post && post.author ? `flex gap-[1rem]` : `hidden`
-                  }
+                  className={post && post.author ? `flex gap-[1rem]` : `hidden`}
                 >
-                  <p className="italic underline whitespace-nowrap">posted by:</p>
+                  <p className="italic underline whitespace-nowrap">
+                    posted by:
+                  </p>
                   <p className=" whitespace-nowrap">{post && post.author}</p>
                 </div>
 
@@ -356,7 +404,7 @@ const Page = ({ params }: ParamProps) => {
                           ? " w-full bg-[#081c15] p-[1rem] rounded text-[white]"
                           : "hide"
                       }
-                      // onClick={() => createBtn()}
+                      onClick={() => setEditPost(true)}
                     >
                       Edit Post
                     </button>
@@ -376,7 +424,7 @@ const Page = ({ params }: ParamProps) => {
                           ? "hide"
                           : "bg-[#081c15] text-[white] h-full p-[0.5rem] rounded-[5px] w-[90%]"
                       }
-                      // onClick={saved ? undoSave : savePost}
+                      onClick={isSaved ? undoSave : savePost}
                     >
                       {isSaved ? "Saved!" : "Save The post"}
                     </button>
@@ -389,31 +437,35 @@ const Page = ({ params }: ParamProps) => {
                   <p className="first-letter:text-[42px] text-justify leading-[2rem] pb-[2rem]">
                     {post && post.content}
                   </p>
-                  <div>
-                    {post && post.type == "image" ? (
-                      <img
-                        src={post && post.contentfilelink}
-                        className={
-                          post && post.contentfilelink
-                            ? `w-full object-cover`
-                            : "hidden"
-                        }
-                      />
-                    ) : (
-                      <Player
-                        playsInline
-                        fluid={false}
-                        width={400}
-                        height={400}
-                        src={post && post.contentfilelink}
-                        // style={
-                        //   post && post.contentfilelink
-                        //     ? `w-full object-cover`
-                        //     : "hidden"
-                        // }
-                      />
-                    )}
-                  </div>
+
+                  {post?.contentfilelink && (
+                    <div>
+                      {post.type == "image" ? (
+                        <CldImage
+                          src={post && post.contentfilelink}
+                          className={
+                            post && post.contentfilelink
+                              ? `w-full object-cover`
+                              : "hidden"
+                          }
+                          alt=""
+                          width={500}
+                          height={500}
+                        />
+                      ) : (
+                        <div className={"w-full object-cover"}>
+                          <Player
+                            playsInline
+                            fluid={false}
+                            width={400}
+                            height={400}
+                            src={post && post.contentfilelink}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div
                     className={
                       post && post.reference
@@ -438,7 +490,7 @@ const Page = ({ params }: ParamProps) => {
                 comment.map((el, index) => {
                   return (
                     <Fragment key={index}>
-                      {isAuthor ? (
+                      {el.commentby === user?.id ? (
                         <div className="flex flex-col gap-[1rem] w-[100%] p-[1.5rem] py-[2rem] mb-[1rem] bg-[#00000010] rounded-[10px]">
                           <div className="comment-user font-bold text-[18px] flex gap-[0.5rem] items-center">
                             <p className="cursor-pointer">
@@ -448,13 +500,15 @@ const Page = ({ params }: ParamProps) => {
                               <RiPenNibFill /> <p>author</p>
                             </div>
                             <p className="italic font-normal text-[14px] px-[1rem]">
-                              {moment(el.date).startOf("hour").fromNow()}{" "}
+                              {moment(el.date).add(6, "hours").fromNow()}
                             </p>
                             <button
                               data-index={el.id}
-                              // onClick={deleteComment(el.id)}
+                              onClick={deleteComment(el.id as number)}
                               className={
-                                isAuthor ? "flex hover:scale-[1.1]" : "hide"
+                                el.commentby === user?.id
+                                  ? "flex hover:scale-[1.1]"
+                                  : "hide"
                               }
                             >
                               <AiOutlineDelete />
@@ -469,18 +523,22 @@ const Page = ({ params }: ParamProps) => {
                         <div className="flex flex-col justify-end items-end gap-[1rem] w-[100%] p-[1.5rem] py-[2rem] mb-[1rem] bg-[#00000010] rounded-[10px] text-right">
                           <div className="comment-user flex font-bold text-[18px] items-center">
                             <button
-                              // data-index={el.id}
-                              // onClick={deleteComment(el.id)}
+                              data-index={el.id}
+                              onClick={deleteComment(el.id as number)}
                               className={
-                                isAuthor ? "flex hover:scale-[1.1]" : "hide"
+                                el.commentby === user?.id
+                                  ? "flex hover:scale-[1.1]"
+                                  : "hide"
                               }
                             >
                               <AiOutlineDelete />
                             </button>
                             <p className="italic font-normal text-[14px] px-[1rem]">
-                              {moment(el.date).startOf("hour").fromNow()}
+                              {moment(el.date).add(6, "hours").fromNow()}
                             </p>
-                            <p className="cursor-pointer">{el.commentby}</p>
+                            <p className="cursor-pointer">
+                              {getCommentName(el.commentby)}
+                            </p>
                           </div>
 
                           <div className="flex">
@@ -501,18 +559,14 @@ const Page = ({ params }: ParamProps) => {
                     <input
                       type="text"
                       autoComplete="off"
-                      onChange={(e) =>
-                        setNewComment((prev) => ({
-                          ...prev,
-                          comment: e.target.value,
-                        }))
-                      }
-                      value={newComment?.comment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      value={newComment}
                       className="w-full p-[1rem] rounded-[5px] bg-[#00000010] "
                       required
                     />
                     <button
-                      // onClick={sendComment}
+                      disabled={newComment ? false : true}
+                      onClick={sendComment}
                       className="p-[1rem] rounded-[5px] bg-[#081c15] text-[#fefae0]"
                     >
                       comment
@@ -525,8 +579,9 @@ const Page = ({ params }: ParamProps) => {
                 </div>
               )}
             </section>
-            {/* <EditPost />
-            <Footer></Footer> */}
+            {showEditPost && post ? (
+              <EditPost post={post} onHide={() => setEditPost(false)} />
+            ) : null}
           </div>
         </div>
       </section>

@@ -10,7 +10,6 @@ import { useData } from "@/context/DataProvider";
 const Header = () => {
   const { user } = useData();
   const [height, setHeight] = useState("6rem");
-
   const [showMenu, setShowMenu] = useState(0);
 
   const handleScroll = () => {
@@ -91,20 +90,20 @@ const Header = () => {
                 ? `Hey, ${user && user.full_name}`
                 : "You haven't logged in"}
               <div className="flex flex-col items-end text-[24px] font-bold my-[2rem] gap-[0.5rem]">
-                <Link href={`/posts/sports`}>
-                  <button>Sports</button>
+                <Link href={`/categories/sports`}>
+                  <button onClick={() => setShowMenu(0)}>Sports</button>
                 </Link>
-                <Link href={`/posts/politics`}>
-                  <button>Politics</button>
+                <Link href={`/categories/politics`}>
+                  <button onClick={() => setShowMenu(0)}>Politics</button>
                 </Link>
-                <Link href={`/posts/fashion`}>
-                  <button>Fashion</button>
+                <Link href={`/categories/fashion`}>
+                  <button onClick={() => setShowMenu(0)}>Fashion</button>
                 </Link>
-                <Link href={`/posts/tech`}>
-                  <button>Technology</button>
+                <Link href={`/categories/tech`}>
+                  <button onClick={() => setShowMenu(0)}>Technology</button>
                 </Link>
-                <Link href={`/posts/music-film`}>
-                  <button>Music-film</button>
+                <Link href={`/categories/music-film`}>
+                  <button onClick={() => setShowMenu(0)}>Music-film</button>
                 </Link>
               </div>
             </div>

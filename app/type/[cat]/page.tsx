@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AiOutlineStar } from "react-icons/ai";
 import { BiComment } from "react-icons/bi";
 import Link from "next/link";
@@ -71,8 +71,10 @@ const Page = ({ params }: ParapProps) => {
             </button>
           </div>
           <div className="w-full my-[2rem] mt-[1rem]">
-            {catPost?.map((el, index) => {
-              return (
+            {catPost?.length === 0 ? (
+              <p>No posts yet.</p>
+            ) : (
+              catPost?.map((el, index) => (
                 <div key={index}>
                   <div className="flex justify-between py-[1rem] w-full bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]">
                     <div className="flex w-full">
@@ -120,8 +122,8 @@ const Page = ({ params }: ParapProps) => {
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              ))
+            )}
           </div>
         </div>
       </div>

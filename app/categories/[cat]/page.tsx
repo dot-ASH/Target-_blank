@@ -71,8 +71,10 @@ const Page = ({ params }: ParapProps) => {
             </button>
           </div>
           <div className="w-full my-[2rem] mt-[1rem]">
-            {catPost?.map((el, index) => {
-              return (
+            {catPost?.length === 0 ? (
+              <p className="w-full text-center">No posts yet.</p>
+            ) : (
+              catPost?.map((el, index) => (
                 <div key={index}>
                   <div className="flex justify-between py-[1rem] w-full bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]">
                     <div className="flex w-full">
@@ -82,7 +84,7 @@ const Page = ({ params }: ParapProps) => {
                             <Link href={`/posts/${el.id}`}>
                               <h1 className="font-bold text-left">
                                 {el.title}
-                              </h1>{" "}
+                              </h1>
                             </Link>
                           </button>
                         </div>
@@ -98,14 +100,14 @@ const Page = ({ params }: ParapProps) => {
                           <div className="flex">
                             <button>
                               <AiOutlineStar className="text-[22px]" />
-                            </button>{" "}
+                            </button>
                             &nbsp;
                             <div> {el.reactcount}</div>
                           </div>
                           <div className="flex">
                             <button>
                               <BiComment className="text-[22px]" />
-                            </button>{" "}
+                            </button>
                             &nbsp;
                             <div> {el.commentcount}</div>
                           </div>
@@ -120,8 +122,8 @@ const Page = ({ params }: ParapProps) => {
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              ))
+            )}
           </div>
         </div>
       </div>

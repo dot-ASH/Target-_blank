@@ -2,16 +2,9 @@ import { sql } from "@vercel/postgres";
 import { NextRequest, NextResponse } from "next/server";
 
 type MyData = {
-  full_name: string;
-  email: string;
-  thumb: string;
+  newsletter: string;
   id: string;
 };
-
-export async function GET() {
-  const posts = await sql`SELECT * FROM users;`;
-  return NextResponse.json(posts.rows, { status: 200 });
-}
 
 export async function PUT(request: NextRequest) {
   const res: MyData = await request.json();
@@ -25,10 +18,8 @@ export async function PUT(request: NextRequest) {
 
   try {
     const result = await sql`UPDATE users
-  SET full_name = ${res.full_name}, 
-      email = ${res.email}, 
-      thumb = ${res.thumb}
-  WHERE id = ${res.id};`;
+    SET newsletter = ${res.newsletter} 
+    WHERE id = ${res.id};`;
 
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {

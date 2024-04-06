@@ -284,18 +284,9 @@ const Page = () => {
                   >
                     <div className="flex items-center justify-center content-box relative h-full">
                       <h1 className="content-title flex justify-center items-center text-[#fefae0] text-xl z-[300] p-[0.5rem] ml-[0.275rem] rounded-[10%]">
-                        <Link
-                          href={"/show-type-post"}
-                          // onClick={() => typeToken(cat.name)}
-                        >
-                          {cat.name}
-                        </Link>
+                        <Link href={`/type/${cat.name}`}>{cat.name}</Link>
                       </h1>
                       <div className="absolute content-img w-full h-full">
-                        {/* <img
-                          src={`${cat.thumb}`}
-                          className="w-full h-full"
-                        ></img> */}
                         <CldImage
                           width="600"
                           height="600"

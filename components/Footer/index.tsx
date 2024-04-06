@@ -14,7 +14,7 @@ const Footer = () => {
       className="section h-[400px] w-full  text-[#fefae0] justify-center"
     >
       <div
-        className="flex flex-col w-full justify-between p-[4rem] px-[7rem] pb-[4rem] container bg-[#081c15] rounded-lg"
+        className="flex flex-col w-full justify-between p-[4rem] px-[7rem] pb-[4rem] container bg-[#081c15] rounded-tl-lg rounded-tr-lg"
         style={{ paddingBottom: pathname === "/" ? "6rem" : "3rem" }}
       >
         <div className="flex justify-between">

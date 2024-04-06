@@ -18,27 +18,7 @@ const Page = () => {
   const [myPost, setmyPost] = useState(true);
   const [mySave, setmySave] = useState(false);
   const [myComment, setComment] = useState(false);
-  const [showCreateBtn, setShowCreateBtn] = useState("mx-[-5rem]");
   const [showCreatePost, setShowCreatePost] = useState<boolean>(false);
-  const [height, setHeight] = useState("5rem");
-
-  const handleScroll = () => {
-    if (window.scrollY > 10) {
-      setHeight("4rem");
-      setShowCreateBtn("mx-[7rem]");
-    } else {
-      setHeight("5rem");
-      setShowCreateBtn("mx-[-7rem]");
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   const showPost = () => {
     setmyPost(true);
@@ -59,22 +39,6 @@ const Page = () => {
     setShowCreatePost(false);
   };
 
-  const CreatePostState = () => {
-    setmyPost(false);
-    setmySave(false);
-    setComment(false);
-    setShowCreatePost(true);
-  };
-
-  const createBtn = () => {
-    // document.body.style.overflow = "hidden";
-    // if (document && document.getElementById("create-post")) {
-    //   document.getElementById("create-post")!.style.display = "block";
-    setShowCreatePost(true);
-    // }
-  };
-
-  //   console.log(user[0] && user[0].full_name);
   return (
     <section
       id="dashboard"
@@ -113,14 +77,19 @@ const Page = () => {
         </div>
         <Tippy content={"Click to create post"}>
           <div
-            className={`fixed bottom-0 right-0 ${showCreateBtn} mb-[5rem] rounded-[50%] w-[4rem] h-[4rem] bg-[#fefae0] flex  items-center justify-center border-[0.1rem] border-[#081c15] text-[#081c15] hover:bg-[#081c15] hover:text-[#fefae0] duration-500 hover:border-[#fefae0]`}
+            className={`fixed bottom-0 right-0 mx-[7rem] mb-[5rem] rounded-[50%] w-[4rem] h-[4rem] bg-[#fefae0] flex  items-center justify-center border-[0.1rem] border-[#081c15] text-[#081c15] hover:bg-[#081c15] hover:text-[#fefae0] duration-500 hover:border-[#fefae0]`}
           >
-            <button onClick={() => createBtn()} className=" react-star">
+            <button
+              onClick={() => setShowCreatePost(true)}
+              className=" react-star"
+            >
               <GoPlus className="text-[32px] " />
             </button>
           </div>
         </Tippy>
-        <CreatePost />
+        {showCreatePost ? (
+          <CreatePost onHide={() => setShowCreatePost(false)} />
+        ) : null}
       </div>
     </section>
   );

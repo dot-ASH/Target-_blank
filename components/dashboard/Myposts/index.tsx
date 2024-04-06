@@ -7,6 +7,7 @@ import { AiOutlineStar } from "react-icons/ai";
 import { BiComment } from "react-icons/bi";
 import Link from "next/link";
 import { useData } from "@/context/DataProvider";
+import { CldImage } from "next-cloudinary";
 
 const Mypost = () => {
   const { user, posts } = useData();
@@ -64,10 +65,13 @@ const Mypost = () => {
                       </div>
                     </div>
                     <div>
-                      <img
+                      <CldImage
+                        alt=""
+                        width={400}
+                        height={400}
                         src={el.thumbimage}
                         className="h-[300px] w-[400px] object-cover rounded-[5px]"
-                      ></img>
+                      ></CldImage>
                     </div>
                   </div>
                 </div>

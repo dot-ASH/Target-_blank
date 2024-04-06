@@ -15,7 +15,7 @@ interface PostComment {
   postid: number;
   commentby: number;
   comment: string;
-  date?: Date;
+  date: Date;
 }
 
 interface Post {
@@ -42,7 +42,7 @@ interface PostReact {
 }
 
 interface Saved {
-  int: number;
+  id: number;
   postid: number;
   savedby: number;
 }
