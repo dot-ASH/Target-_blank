@@ -32,6 +32,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
   const [contentFileLink, setContentFileLink] = useState<string>("");
   const [validFileLink, setValidFileLink] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isButtonDisabled, setButtonDisabled] = useState(true);
 
   const onDesChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -80,8 +81,11 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
       })
         .then((res) => res.json())
         .then((data) => {
-          setThumbLink(data.public_id);
-          setValidThumbLink(true);
+          if (data.public_id) {
+            setThumbLink(data.public_id);
+            setButtonDisabled(false);
+            setValidThumbLink(true);
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -231,9 +235,13 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
               <div className="w-full flex justify-between items-center">
                 <p className="w-max"> The content contains</p>
                 <div className="w-[80%] flex gap-[2rem] justify-start">
-                  <label className="flex items-center gap-[2rem] justify-between">
+                  <label
+                    htmlFor="type"
+                    className="flex items-center gap-[2rem] justify-between"
+                  >
                     <select
                       value={typeValue}
+                      id="type"
                       onChange={(e) => setTypeValue(e.target.value)}
                     >
                       <option value="image">Image</option>
@@ -242,10 +250,14 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     </select>
                   </label>
 
-                  <label className="flex items-center gap-[2rem] justify-between">
+                  <label
+                    htmlFor="catValue"
+                    className="flex items-center gap-[2rem] justify-between"
+                  >
                     <p className="w-max">on</p>{" "}
                     <select
                       value={catValue}
+                      id="catValue"
                       onChange={(e) => setCatValue(e.target.value)}
                     >
                       <option value="sports">Sports</option>
@@ -277,7 +289,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                 />
               </label>
               <label
-                htmlFor="description"
+                htmlFor="content"
                 className="flex w-full items-center gap-[2rem] justify-between"
               >
                 <p className="w-max">Content</p>
@@ -300,7 +312,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
               >
                 <p className="w-max">Reference</p>{" "}
                 <textarea
-                  id="content"
+                  id="reference"
                   className="w-[80%] overflow-hidden p-[1rem]"
                   style={{ height: "3rem" }}
                   onChange={(e) => setReferenceValue(e.target.value)}
@@ -331,7 +343,12 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     icon={faTimes}
                     className={validThumbLink ? "hide" : "text-[#30302c]"}
                   />
-                  <button onClick={submitImage}>add image</button>
+                  <button
+                    onClick={submitImage}
+                    className="border-[1px] border-black rounded-md p-2"
+                  >
+                    add image
+                  </button>
                 </div>
               </label>
 
@@ -358,14 +375,21 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     icon={faTimes}
                     className={validFileLink ? "hide" : "text-[#30302c]"}
                   />
-                  <button onClick={submitFile}>add file</button>
+                  <button
+                    onClick={submitFile}
+                    className="border-[1px] border-black rounded-md p-2"
+                  >
+                    add file
+                  </button>
                 </div>
               </label>
 
               <div className="w-full flex justify-end p-[1rem]">
                 <div className="flex bg-[#081c15]  text-[#fefae0] rounded-[3px]">
                   <span className="spooky-button">
-                    <button type="submit">publish</button>
+                    <button type="submit" disabled={isButtonDisabled}>
+                      publish
+                    </button>
                   </span>
                 </div>
               </div>

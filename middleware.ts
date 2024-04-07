@@ -11,9 +11,7 @@ export default async function middleware(req: NextRequest) {
   if (!isAuth && protectedRoutes.includes(req.nextUrl.pathname)) {
     const absoluteURL = new URL("/", req.nextUrl.origin);
     return NextResponse.redirect(absoluteURL.toString());
-  }
-
-  console.log(isAuth && authRoutes.includes(req.nextUrl.pathname));
+  } 
 
   if (isAuth && authRoutes.includes(req.nextUrl.pathname)) {
     const absoluteURL = new URL("/", req.nextUrl.origin);

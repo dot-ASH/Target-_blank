@@ -506,7 +506,6 @@ const Page = () => {
         </nav>
       </div>
     </main>
-    // <p>heii</p>
   );
 };
 

@@ -93,7 +93,7 @@ const Page = ({ params }: ParamProps) => {
 
   const getCommentName = (id: number): string | undefined => {
     const commentby = users.find((obj) => obj.id === id);
-    return commentby?.full_name;
+    return commentby?.full_name || commentby?.username;
   };
 
   const sendComment = async (e: { preventDefault: () => void }) => {
@@ -101,7 +101,7 @@ const Page = ({ params }: ParamProps) => {
 
     try {
       await api.post(
-        `/posts/comment`,
+        `/comments`,
         JSON.stringify({
           postid: post?.id,
           commentby: user?.id,
@@ -113,7 +113,7 @@ const Page = ({ params }: ParamProps) => {
       );
 
       await api.put(
-        `/posts/comment`,
+        `/comments`,
         JSON.stringify({
           postid: post?.id,
           commentcount: (post?.commentcount as number) + 1,
@@ -139,7 +139,7 @@ const Page = ({ params }: ParamProps) => {
     (id: number) => async (e: { preventDefault: () => void }) => {
       e.preventDefault();
       try {
-        await api.delete(`/posts/comment`, {
+        await api.delete(`/comments`, {
           data: {
             commentcount: (post?.commentcount as number) - 1,
             postid: post?.id,
@@ -183,7 +183,7 @@ const Page = ({ params }: ParamProps) => {
     e.preventDefault();
     try {
       await api.post(
-        `/posts/react`,
+        `/reacts`,
         JSON.stringify({
           reactby: user?.id,
           postid: post?.id,
@@ -194,7 +194,7 @@ const Page = ({ params }: ParamProps) => {
       );
 
       await api.put(
-        `/posts/react`,
+        `/reacts`,
         JSON.stringify({
           postid: post?.id,
           reactcount: (reactCount as number) + 1,
@@ -220,7 +220,7 @@ const Page = ({ params }: ParamProps) => {
     e.preventDefault();
 
     try {
-      await api.delete(`/posts/react`, {
+      await api.delete(`/reacts`, {
         data: {
           reactcount: (reactCount as number) - 1,
           postid: post?.id,
@@ -241,10 +241,9 @@ const Page = ({ params }: ParamProps) => {
 
   const savePost = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    console.log("heii");
     try {
       await api.post(
-        `/posts/saved`,
+        `/saved`,
         JSON.stringify({
           savedby: user?.id,
           postid: post?.id,
@@ -268,7 +267,7 @@ const Page = ({ params }: ParamProps) => {
   const undoSave = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      await api.delete(`/posts/saved`, {
+      await api.delete(`/saved`, {
         data: {
           postid: post?.id,
           id: savedId,
@@ -292,7 +291,7 @@ const Page = ({ params }: ParamProps) => {
         className="w-full section items-center justify-center"
       >
         <div className=" flex flex-col container justify-between min-h-screen">
-          <div className="content-head h-[85vh]">
+          <div className="content-head h-[85vh] mt-[6rem]">
             <div className="realative w-full h-full flex justify-center items-center bg-[#081c15] rounded-[5px]">
               <div className="absolute z-[1000]">
                 <h1 className="text-[white]  text-center text-3xl top-[42%] m-[2rem] ">
@@ -553,6 +552,7 @@ const Page = ({ params }: ParamProps) => {
                   <div className="comment-user font-bold text-[16px]"></div>
                   <form className="w-full flex gap-[1.5rem]">
                     <input
+                      id="newComment"
                       type="text"
                       autoComplete="off"
                       onChange={(e) => setNewComment(e.target.value)}

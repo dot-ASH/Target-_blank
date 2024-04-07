@@ -134,7 +134,7 @@ const EditPost = ({ post, onHide }: ParamProps) => {
                 />
               </label>
               <label
-                htmlFor="description"
+                htmlFor="content"
                 className="flex w-full items-center gap-[2rem] justify-between"
               >
                 <p className="w-max">Content</p>
@@ -153,7 +153,7 @@ const EditPost = ({ post, onHide }: ParamProps) => {
               >
                 <p className="w-max">Reference</p>
                 <textarea
-                  id="content"
+                  id="reference"
                   className="w-[80%] overflow-hidden p-[1rem]"
                   style={{ height: "3rem" }}
                   onChange={(e) => setReferenceValue(e.target.value)}
