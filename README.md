@@ -1,4 +1,4 @@
-*Blogging site using React.js, postgreSQL, vite and scss*
+*Blogging site using Next js(App Router), React, PostgreSQL, JWT Auth, Tailwind and SCSS*
 
 ## Features
 ---
