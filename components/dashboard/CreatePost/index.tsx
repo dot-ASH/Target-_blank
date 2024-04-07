@@ -192,7 +192,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
       ) : (
         <div className="flex flex-col  m-[3rem]">
           <button onClick={onHide}>
-            <GiTireIronCross className=" font-bold text-[20px]" />{" "}
+            <GiTireIronCross className=" font-bold text-[20px]" />
           </button>
           <div>
             <h1 className=" uppercase font-bold text-center my-[1rem]">
@@ -208,7 +208,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                 htmlFor="title"
                 className="flex w-full items-center gap-[2rem] justify-between"
               >
-                <p className="w-max">Title of the content</p>{" "}
+                <p className="w-max">Title of the content</p>
                 <input
                   type="text"
                   id="title"
@@ -222,7 +222,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                 htmlFor="createdby"
                 className="flex w-full items-center gap-[2rem] justify-between"
               >
-                <p className="w-max">Created By</p>{" "}
+                <p className="w-max">Created By</p>
                 <input
                   type="text"
                   id="createdby"
@@ -254,7 +254,7 @@ const CreatePost = ({ onHide }: CreatePostParam) => {
                     htmlFor="catValue"
                     className="flex items-center gap-[2rem] justify-between"
                   >
-                    <p className="w-max">on</p>{" "}
+                    <p className="w-max">on</p>
                     <select
                       value={catValue}
                       id="catValue"

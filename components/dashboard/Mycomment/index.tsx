@@ -36,7 +36,7 @@ const Mycomment = () => {
                       </div>
                       <div className="text-left">
                         <p className="italic">
-                          - {moment(el.date).add(6, "hours").fromNow()}
+                          - {moment(el.date).fromNow()}
                         </p>
                       </div>
                       <div className=" flex text-left py-[1rem] gap-[1.5rem]"></div>

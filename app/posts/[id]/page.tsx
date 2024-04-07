@@ -389,7 +389,7 @@ const Page = ({ params }: ParamProps) => {
                     Posted at:
                   </p>
                   <p className=" whitespace-nowrap">
-                    {moment(post?.date).add(6, "hours").format("LLL")}
+                    {moment(post?.date).format("LLL")}
                   </p>
                 </div>
 
@@ -495,7 +495,7 @@ const Page = ({ params }: ParamProps) => {
                               <RiPenNibFill /> <p>author</p>
                             </div>
                             <p className="italic font-normal text-[14px] px-[1rem]">
-                              {moment(el.date).add(6, "hours").fromNow()}
+                              {moment(el.date).fromNow()}
                             </p>
                             <button
                               data-index={el.id}
@@ -529,7 +529,7 @@ const Page = ({ params }: ParamProps) => {
                               <AiOutlineDelete />
                             </button>
                             <p className="italic font-normal text-[14px] px-[1rem]">
-                              {moment(el.date).add(6, "hours").fromNow()}
+                              {moment(el.date).fromNow()}
                             </p>
                             <p className="cursor-pointer">
                               {getCommentName(el.commentby)}
