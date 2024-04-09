@@ -198,7 +198,7 @@ $dark-color: #081c15;
   color: $dark-color;
   border: 1px solid $dark-color;
 }
-.searchInputs input:focus{
+.searchInputs input:focus {
   border: 1px solid $dark-color;
 }
 select {
@@ -298,8 +298,8 @@ input:focus {
   border: 1px solid $dark-color;
 }
 
-.dataResult{
-  width:100%;
+.dataResult {
+  width: 100%;
   height: 100%;
   padding: 3rem 0;
   border: 1px solid $dark-color;
@@ -307,16 +307,23 @@ input:focus {
   border-radius: 10px;
 }
 
-.dataResult p{
+.dataResult p {
   padding: 1rem 1rem;
   border: 1px solid $dark-color;
 }
 
-.active-section{
+.active-section {
   padding: 0.2rem 0;
-  color:  #847469;
-  text-decoration:dashed;
+  color: #847469;
+  text-decoration: dashed;
   transition: all 200ms;
+}
+
+@media (max-width: 800px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 @media (min-width: 1250px) {

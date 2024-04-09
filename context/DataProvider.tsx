@@ -10,6 +10,7 @@ import React, {
   useCallback,
 } from "react";
 import { useAuth } from "./AuthProvider";
+import Loading from "@/components/Loading";
 
 interface DataContextType {
   user: User | null;
@@ -146,7 +147,7 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
         refreshModule,
       }}
     >
-      {!initialized ? <div>loading.....</div> : children}
+      {!initialized ? <Loading /> : children}
     </DataContext.Provider>
   );
 };

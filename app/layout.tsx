@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import { DataProvider } from "@/context/DataProvider";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthProvider";
+import { Fragment } from "react";
+import MobileWarn from "@/components/MobileWarn";
 
 export const metadata: Metadata = {
   title: "Target Blank",
@@ -20,10 +22,11 @@ export default function RootLayout({
         <AuthProvider>
           <DataProvider>
             <Header />
-            {children}
+            <Fragment>{children}</Fragment>
             <Footer />
           </DataProvider>
         </AuthProvider>
+        <MobileWarn />
       </body>
     </html>
   );
