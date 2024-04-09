@@ -50,19 +50,19 @@ const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getUserData = useCallback(async () => {
-    if (sessionUser) {
-      try {
-        const { data } = await api.get("users");
-        setUsers(data);
+    try {
+      const { data } = await api.get("users");
+      setUsers(data);
+      if (sessionUser) {
         const foundUser = data.find(
           (users: User) => users.id === parseInt(sessionUser.id, 10)
         );
         setUser(foundUser);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
       }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     }
-  }, [session, toggleRefresh]);
+  }, [session, toggleRefresh, sessionUser]);
 
   const getPostData = useCallback(async () => {
     try {

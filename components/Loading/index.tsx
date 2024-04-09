@@ -6,11 +6,6 @@ const Loading = () => {
   const path = useRef<SVGPathElement>(null);
 
   useEffect(() => {
-    // let isLoading = false;
-
-    // const path = document.querySelector(".path");
-    // const loading = document.querySelector(".loading");
-
     setTimeout(() => {
       document.documentElement.style.setProperty("--stroke-dasharray", "0");
       loading?.current?.animate(
@@ -60,9 +55,9 @@ const Loading = () => {
             y2="18"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#E5B1EE" />
-            <stop offset="0.517791" stop-color="#D9D9D9" />
-            <stop offset="0.9999" stop-color="#57859C" />
+            <stop stopColor="#E5B1EE" />
+            <stop offset="0.517791" stopColor="#D9D9D9" />
+            <stop offset="0.9999" stopColor="#57859C" />
           </linearGradient>
         </defs>
       </svg>

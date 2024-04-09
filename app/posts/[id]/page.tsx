@@ -92,8 +92,10 @@ const Page = ({ params }: ParamProps) => {
   }, dataFetchingFunctions);
 
   const getCommentName = (id: number): string | undefined => {
-    const commentby = users.find((obj) => obj.id === id);
-    return commentby?.full_name || commentby?.username;
+    console.log(id);
+    const commntby = users?.find((obj) => obj.id === id);
+    console.log(users);
+    return commntby?.full_name || commntby?.username;
   };
 
   const sendComment = async (e: { preventDefault: () => void }) => {
@@ -293,8 +295,8 @@ const Page = ({ params }: ParamProps) => {
         <div className=" flex flex-col container justify-between min-h-screen">
           <div className="content-head h-[85vh] mt-[6rem]">
             <div className="realative w-full h-full flex justify-center items-center bg-[#081c15] rounded-[5px]">
-              <div className="absolute z-[1000]">
-                <h1 className="text-[white]  text-center text-3xl top-[42%] m-[2rem] ">
+              <div className="absolute z-[1000] w-[70%] flex flex-wrap">
+                <h1 className="text-[white] text-center text-3xl top-[42%] m-[2rem] ">
                   {post && post.title}
                 </h1>
                 <p className="text-[white] text-center top-[42%] m-[2rem] ">
@@ -533,6 +535,7 @@ const Page = ({ params }: ParamProps) => {
                             </p>
                             <p className="cursor-pointer">
                               {getCommentName(el.commentby)}
+                              {/* {(el.commentby)} */}
                             </p>
                           </div>
 

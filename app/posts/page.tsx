@@ -6,10 +6,12 @@ import { BiComment } from "react-icons/bi";
 import Link from "next/link";
 import moment from "moment";
 import { useData } from "@/context/DataProvider";
+import { CldImage } from "next-cloudinary";
 
 const Page = () => {
   const { posts } = useData();
   const [recentSelected, setRecentSelected] = useState(true);
+  const [allPost, setAllPosts] = useState<Post[]>(posts);
 
   const recentBtn = () => {
     setRecentSelected(true);
@@ -21,11 +23,15 @@ const Page = () => {
 
   useEffect(() => {
     if (recentSelected) {
-      posts.sort((a, b) => b.id - a.id);
+      const sortedPosts = [...posts].sort((a, b) => b.id - a.id);
+      setAllPosts(sortedPosts);
     } else {
-      posts.sort((a, b) => b.reactcount - a.reactcount);
+      const sortedPosts = [...posts].sort(
+        (a, b) => b.reactcount - a.reactcount
+      );
+      setAllPosts(sortedPosts);
     }
-  }, [recentBtn, posts]);
+  }, [recentSelected, posts]);
 
   return (
     <>
@@ -55,16 +61,14 @@ const Page = () => {
               </button>
             </div>
             <div className="w-full my-[2rem] mt-[1rem]">
-              {posts.map((el, index) => {
+              {allPost.map((el, index) => {
                 return (
                   <div key={index}>
                     <div className="flex justify-between py-[1rem] w-full bg-[#00000010] my-[1rem] p-[0.5rem] px-[1.5rem] rounded-[2px]">
                       <div className="flex w-full">
                         <div className="flex flex-col justify-around w-full">
                           <div className="text-left py-[1rem]" key={el.id}>
-                            <button
-                            // onClick={() => postToken(el.id, el.postby)}
-                            >
+                            <button>
                               <Link href={`/posts/${el.id}`}>
                                 <h1 className="font-bold text-left">
                                   {el.title}
@@ -98,10 +102,13 @@ const Page = () => {
                           </div>
                         </div>
                         <div>
-                          <img
+                          <CldImage
+                            alt=""
+                            width={400}
+                            height={400}
                             src={el.thumbimage}
                             className="h-[300px] w-[400px] object-cover rounded-[5px]"
-                          ></img>
+                          ></CldImage>
                         </div>
                       </div>
                     </div>
